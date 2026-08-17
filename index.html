@@ -7,8 +7,8 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
-<link rel="stylesheet" href="style.css?v=5">
+<meta name="theme-color" content="#10264d">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -46,9 +46,9 @@
     </div>
 
     <div class="field">
-      <label for="ageInput">現在の年齢(任意)</label>
+      <label for="ageInput">返済開始時点の年齢(任意)</label>
       <input type="number" id="ageInput" inputmode="numeric" placeholder="例: 35" min="0" max="120" step="1">
-      <p class="hint">入れると、完済時の年齢や、年別の返済予定表にその時の年齢が表示されます。</p>
+      <p class="hint">入れると、完済時の年齢や、年別の返済予定表にその時の年齢が表示されます。今すぐ借りるなら今の年齢を、「5年後に学資ローンを組む」のような先の話をシミュレーションするなら、その時点での予定年齢を入れてください。</p>
     </div>
 
     <div class="field">
@@ -87,6 +87,15 @@
 
     <div class="table-wrap">
       <table id="scheduleTable"></table>
+    </div>
+  </section>
+
+  <section class="card hidden" id="exportCard">
+    <h2>4. 結果を書き出す</h2>
+    <p class="hint">計算結果をテキストで書き出せます。コピーして、メモアプリやスプレッドシートに貼り付けて保管できます。</p>
+    <textarea id="exportText" rows="10" readonly></textarea>
+    <div class="export-buttons">
+      <button type="button" id="copyExportBtn" class="reset-btn">コピーする</button>
     </div>
   </section>
 
@@ -130,6 +139,6 @@
   </section>
 </div>
 
-<script src="script.js?v=5"></script>
+<script src="script.js?v=6"></script>
 </body>
 </html>

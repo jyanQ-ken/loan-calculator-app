@@ -4,8 +4,8 @@
   "description": "借入額・金利・期間から毎月の返済額と繰り上げ返済の効果を計算するシンプルなアプリ",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "theme_color": "#10264d",
   "icons": [
     {
       "src": "icon-180.png",

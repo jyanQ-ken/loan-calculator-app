@@ -1,54 +1,57 @@
-/* ソリッド・ミニマリズム: 黒×白のハイコントラスト、装飾を排したデザイン */
+/* 堅実・信頼感: ネイビー×グリーンの、金融・お金の計算らしい配色 */
 
 :root {
   --bg-page: #ffffff;
   --bg-card: #ffffff;
   --bg-input: #ffffff;
   --bg-btn: #ffffff;
-  --bg-btn-hover: #000000;
-  --text-main: #0a0a0a;
-  --text-secondary: #6b6b6b;
-  --text-hint: #8a8a8a;
-  --border-color: #d8d8d8;
-  --border-input: #c8c8c8;
-  --accent: #ff2d78;
-  --accent-soft-bg: #ffe6f0;
+  --bg-btn-hover: #10264d;
+  --text-main: #0f1b2d;
+  --text-secondary: #5b6b80;
+  --text-hint: #8393a8;
+  --border-color: #d7dee8;
+  --border-input: #becada;
+  --accent: #10264d;
+  --accent-soft-bg: #e7edf6;
+  --accent-contrast: #ffffff;
   --good-color: #0a8f4a;
   --good-soft-bg: #e5f7ee;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg-page: #000000;
-    --bg-card: #000000;
-    --bg-input: #0a0a0a;
-    --bg-btn: #000000;
+    --bg-page: #0a0f18;
+    --bg-card: #0a0f18;
+    --bg-input: #10182a;
+    --bg-btn: #0a0f18;
     --bg-btn-hover: #ffffff;
-    --text-main: #ffffff;
-    --text-secondary: #a1a1aa;
-    --text-hint: #8a8a8a;
-    --border-color: #2a2a2a;
-    --border-input: #333333;
-    --accent: #ff3d8f;
-    --accent-soft-bg: #33101f;
+    --text-main: #f2f5fa;
+    --text-secondary: #9aa8bd;
+    --text-hint: #7c8aa0;
+    --border-color: #263149;
+    --border-input: #34415e;
+    --accent: #6fa0f0;
+    --accent-soft-bg: #16243f;
+    --accent-contrast: #0a0f18;
     --good-color: #34d399;
     --good-soft-bg: #0c2a1e;
   }
 }
 
 :root[data-theme="dark"] {
-  --bg-page: #000000;
-  --bg-card: #000000;
-  --bg-input: #0a0a0a;
-  --bg-btn: #000000;
+  --bg-page: #0a0f18;
+  --bg-card: #0a0f18;
+  --bg-input: #10182a;
+  --bg-btn: #0a0f18;
   --bg-btn-hover: #ffffff;
-  --text-main: #ffffff;
-  --text-secondary: #a1a1aa;
-  --text-hint: #8a8a8a;
-  --border-color: #2a2a2a;
-  --border-input: #333333;
-  --accent: #ff3d8f;
-  --accent-soft-bg: #33101f;
+  --text-main: #f2f5fa;
+  --text-secondary: #9aa8bd;
+  --text-hint: #7c8aa0;
+  --border-color: #263149;
+  --border-input: #34415e;
+  --accent: #6fa0f0;
+  --accent-soft-bg: #16243f;
+  --accent-contrast: #0a0f18;
   --good-color: #34d399;
   --good-soft-bg: #0c2a1e;
 }
@@ -178,7 +181,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .toggle-btn.active {
   background: var(--accent);
   border-color: var(--accent);
-  color: #ffffff;
+  color: var(--accent-contrast, #ffffff);
   font-weight: 700;
 }
 
@@ -241,6 +244,26 @@ input[type="number"]::-webkit-inner-spin-button {
   cursor: pointer;
 }
 .reset-btn:hover { background: var(--bg-btn-hover); color: var(--bg-btn); }
+
+textarea {
+  width: 100%;
+  background: var(--bg-input);
+  color: var(--text-main);
+  border: 1px solid var(--border-input);
+  border-radius: 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: vertical;
+}
+textarea:focus { outline: 1px solid var(--accent); }
+
+.export-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
 
 details summary {
   font-size: 15px;
