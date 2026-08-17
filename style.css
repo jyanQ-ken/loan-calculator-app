@@ -245,26 +245,6 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 .reset-btn:hover { background: var(--bg-btn-hover); color: var(--bg-btn); }
 
-textarea {
-  width: 100%;
-  background: var(--bg-input);
-  color: var(--text-main);
-  border: 1px solid var(--border-input);
-  border-radius: 0;
-  padding: 10px 12px;
-  font-size: 13px;
-  font-family: inherit;
-  line-height: 1.6;
-  resize: vertical;
-}
-textarea:focus { outline: 1px solid var(--accent); }
-
-.export-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-
 details summary {
   font-size: 15px;
   font-weight: 700;
@@ -283,14 +263,16 @@ details[open] summary::before { content: "▾ "; }
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
-  min-width: 480px;
+  font-size: 11px;
+  table-layout: fixed;
 }
 th, td {
   border: 1px solid var(--border-color);
-  padding: 6px 8px;
+  padding: 4px 3px;
   text-align: right;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 th:first-child, td:first-child { text-align: left; }
 th {
@@ -299,11 +281,11 @@ th {
   font-weight: 600;
 }
 
-td.extra-cell { padding: 3px; background: var(--accent-soft-bg); }
+td.extra-cell { padding: 2px; background: var(--accent-soft-bg); }
 .extra-year-input {
-  width: 68px;
-  padding: 5px 6px;
-  font-size: 12px;
+  width: 100%;
+  padding: 4px 2px;
+  font-size: 11px;
   text-align: right;
   border: 1px solid var(--border-input);
   background: var(--bg-input);

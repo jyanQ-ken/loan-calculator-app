@@ -18,9 +18,6 @@
   const scheduleTable = $('scheduleTable');
   const themeToggle = $('themeToggle');
   const resetExtraBtn = $('resetExtraBtn');
-  const exportCard = $('exportCard');
-  const exportText = $('exportText');
-  const copyExportBtn = $('copyExportBtn');
 
   let method = 'annuity';
   let extraType = 'shorten';
@@ -85,17 +82,6 @@
   resetExtraBtn.addEventListener('click', () => {
     Object.keys(extraByYear).forEach((y) => delete extraByYear[y]);
     recalc();
-  });
-
-  copyExportBtn.addEventListener('click', async () => {
-    exportText.select();
-    try {
-      await navigator.clipboard.writeText(exportText.value);
-    } catch (e) {
-      document.execCommand('copy');
-    }
-    copyExportBtn.textContent = 'コピーしました';
-    setTimeout(() => { copyExportBtn.textContent = 'コピーする'; }, 1200);
   });
 
   // ---------- 計算ロジック ----------
@@ -179,6 +165,11 @@
     return Math.round(n).toLocaleString('ja-JP') + '円';
   }
 
+  // 予定表用: 万円単位に丸めて短く表示(小数点以下は四捨五入)
+  function manEn(n) {
+    return Math.round(n / 10000).toLocaleString('ja-JP');
+  }
+
   function ageAtMonth(currentAge, months) {
     return currentAge + Math.floor(months / 12);
   }
@@ -217,7 +208,6 @@
       resultCard.classList.add('hidden');
       extraResultBody.innerHTML = '';
       scheduleTable.innerHTML = '';
-      exportCard.classList.add('hidden');
       return;
     }
 
@@ -285,52 +275,6 @@
     }
 
     renderYearlyTable(activeSchedule, inputs.currentAge, maxYear);
-    renderExportText(inputs, normalSum, extras.length > 0 ? summarize(activeSchedule) : null, activeSchedule);
-  }
-
-  function renderExportText(inputs, normalSum, extraSum, activeSchedule) {
-    const lines = [];
-    lines.push('【かんたんローン計算】結果');
-    lines.push('');
-    lines.push(`借入額・現在の残高: ${(inputs.principalYen / 10000).toLocaleString('ja-JP')}万円`);
-    lines.push(`年利: ${rateInput.value}%`);
-    lines.push(`返済期間: ${monthsToYM(inputs.totalMonths)}`);
-    lines.push(`返済方式: ${method === 'annuity' ? '元利均等' : '元金均等'}`);
-    if (inputs.currentAge !== null) lines.push(`返済開始時点の年齢: ${inputs.currentAge}歳`);
-    lines.push('');
-    lines.push('■ 通常の返済(繰り上げ返済なし)');
-    lines.push(`毎月の返済額(初回): ${yen(normalSum.firstPayment)}`);
-    lines.push(`完済までの期間: ${monthsToYM(normalSum.months)}`);
-    if (inputs.currentAge !== null) lines.push(`完済時の年齢: ${ageAtMonth(inputs.currentAge, normalSum.months)}歳ごろ`);
-    lines.push(`総返済額: ${yen(normalSum.totalPayment)}`);
-    lines.push(`うち利息の総額: ${yen(normalSum.totalInterest)}`);
-
-    if (extraSum) {
-      lines.push('');
-      lines.push(`■ 繰り上げ返済あり(${extraType === 'shorten' ? '期間短縮型' : '返済額軽減型'})`);
-      lines.push(`完済までの期間: ${monthsToYM(extraSum.months)}`);
-      if (inputs.currentAge !== null) lines.push(`完済時の年齢: ${ageAtMonth(inputs.currentAge, extraSum.months)}歳ごろ`);
-      lines.push(`総返済額: ${yen(extraSum.totalPayment)}`);
-      lines.push(`軽減された利息: ${yen(normalSum.totalInterest - extraSum.totalInterest)}`);
-    }
-
-    lines.push('');
-    lines.push('■ 年別の返済予定表');
-    lines.push('年目,元金,利息,繰り上げ,年末残高');
-    for (let i = 0; i < activeSchedule.length; i += 12) {
-      const chunk = activeSchedule.slice(i, i + 12);
-      const principalPaid = chunk.reduce((s, r) => s + r.principalPaid, 0);
-      const interestPaid = chunk.reduce((s, r) => s + r.interest, 0);
-      const extraPaid = chunk.reduce((s, r) => s + r.extra, 0);
-      const yearNum = Math.floor(i / 12) + 1;
-      lines.push(`${yearNum},${Math.round(principalPaid)},${Math.round(interestPaid)},${Math.round(extraPaid)},${Math.round(chunk[chunk.length - 1].balance)}`);
-    }
-
-    lines.push('');
-    lines.push('※この結果は概算です。正式な金額は金融機関発行の返済予定表をご確認ください。');
-
-    exportText.value = lines.join('\n');
-    exportCard.classList.remove('hidden');
   }
 
   function row(label, value, cls) {
@@ -360,12 +304,12 @@
     }
 
     const ageHeader = currentAge !== null ? '<th>年齢</th>' : '';
-    let html = `<thead><tr><th>年目</th>${ageHeader}<th>元金</th><th>利息</th><th>繰り上げ(万円)</th><th>年末残高</th></tr></thead><tbody>`;
+    let html = `<thead><tr><th>年</th>${ageHeader}<th>元金(万)</th><th>利息(万)</th><th>繰上(万)</th><th>残高(万)</th></tr></thead><tbody>`;
     years.forEach((y) => {
       const ageCell = currentAge !== null ? `<td>${y.age}歳</td>` : '';
       const inputVal = extraByYear[y.year] ? extraByYear[y.year] : '';
       const extraCell = `<td class="extra-cell"><input type="number" class="extra-year-input" data-year="${y.year}" value="${inputVal}" min="0" step="1" placeholder="0" inputmode="decimal"></td>`;
-      html += `<tr><td>${y.year}</td>${ageCell}<td>${yen(y.principalPaid)}</td><td>${yen(y.interestPaid)}</td>${extraCell}<td>${yen(y.balance)}</td></tr>`;
+      html += `<tr><td>${y.year}</td>${ageCell}<td>${manEn(y.principalPaid)}</td><td>${manEn(y.interestPaid)}</td>${extraCell}<td>${manEn(y.balance)}</td></tr>`;
     });
     html += '</tbody>';
     scheduleTable.innerHTML = html;
