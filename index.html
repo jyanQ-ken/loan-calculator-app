@@ -8,14 +8,17 @@
 <link rel="icon" href="icon-180.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#10264d">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 
 <div class="app">
   <header class="header">
     <h1>かんたんローン計算</h1>
-    <button id="themeToggle" class="icon-btn" type="button">☾</button>
+    <div class="header-buttons">
+      <button id="clearAllBtn" class="icon-btn" type="button" aria-label="全部クリア">C</button>
+      <button id="themeToggle" class="icon-btn" type="button">☾</button>
+    </div>
   </header>
 
   <p class="lead">借入額・金利・期間を入れると、毎月の返済額と総返済額がすぐ分かります。返済中のローンなら「今の残高」と「残りの期間」を入れてもOKです。繰り上げ返済の効果も試せます。データはすべてこの端末の中だけで計算され、どこにも送信されません。</p>
@@ -24,8 +27,9 @@
     <h2>1. ローン条件を入力</h2>
 
     <div class="field">
-      <label for="principalInput">借入額・現在の残高(万円)</label>
-      <input type="number" id="principalInput" inputmode="decimal" placeholder="例: 3000" min="0" step="1">
+      <label for="principalInput">借入額・現在の残高(円)</label>
+      <input type="text" id="principalInput" inputmode="numeric" placeholder="例: 30,000,000">
+      <p id="principalPreview" class="amount-preview"></p>
       <p class="hint">これから借りる金額でも、返済中のローンの今の残高でもOKです。残高を入れる場合は、下の期間も「残りの期間」を入力してください。</p>
     </div>
 
@@ -46,7 +50,7 @@
     </div>
 
     <div class="field">
-      <label for="ageInput">返済開始時点の年齢(任意)</label>
+      <label for="ageInput">今の年齢、もしくはローンを組む時点の年齢(任意)</label>
       <input type="number" id="ageInput" inputmode="numeric" placeholder="例: 35" min="0" max="120" step="1">
       <p class="hint">入れると、完済時の年齢や、年別の返済予定表にその時の年齢が表示されます。今すぐ借りるなら今の年齢を、「5年後に学資ローンを組む」のような先の話をシミュレーションするなら、その時点での予定年齢を入れてください。</p>
     </div>
@@ -68,7 +72,7 @@
 
   <section class="card">
     <h2>3. 年別の返済予定表・繰り上げ返済</h2>
-    <p class="hint">表の「繰り上げ」欄に金額(万円)を入れて他の欄をタップすると、その年末に繰り上げ返済したものとして自動で再計算されます。空欄の年は繰り上げ返済なしという意味です。</p>
+    <p class="hint">表の「繰り上げ」欄に金額(円)を入れて他の欄をタップすると、その年末に繰り上げ返済したものとして自動で再計算されます。空欄の年は繰り上げ返済なしという意味です。</p>
 
     <div class="field">
       <label>繰り上げ返済の方式</label>
@@ -130,6 +134,6 @@
   </section>
 </div>
 
-<script src="script.js?v=8"></script>
+<script src="script.js?v=14"></script>
 </body>
 </html>

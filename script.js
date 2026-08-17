@@ -18,10 +18,12 @@
   const scheduleTable = $('scheduleTable');
   const themeToggle = $('themeToggle');
   const resetExtraBtn = $('resetExtraBtn');
+  const clearAllBtn = $('clearAllBtn');
+  const principalPreview = $('principalPreview');
 
   let method = 'annuity';
   let extraType = 'shorten';
-  // 年目(1始まり) → 繰り上げ返済額(万円) のマップ。表に直接入力された値を保持する。
+  // 年目(1始まり) → 繰り上げ返済額(円) のマップ。表に直接入力された値を保持する。
   const extraByYear = {};
 
   // ---------- テーマ切り替え ----------
@@ -60,17 +62,67 @@
     });
   });
 
-  [principalInput, rateInput, yearsInput, monthsInput, ageInput].forEach((el) => {
+  [rateInput, yearsInput, monthsInput, ageInput].forEach((el) => {
     el.addEventListener('input', recalc);
   });
 
-  // 表の「繰り上げ」欄はタップして値を確定した時(change)だけ再計算する。
+  // 借入額は桁が大きく読み間違えやすいので、入力しながら3桁区切りのカンマを自動で入れる
+  function digitsOnly(str) {
+    return (str || '').replace(/[^\d]/g, '');
+  }
+  function formatDigitsWithCommas(digits) {
+    if (!digits) return '';
+    return parseInt(digits, 10).toLocaleString('ja-JP');
+  }
+  function updatePrincipalPreview() {
+    const digits = digitsOnly(principalInput.value);
+    if (!digits) {
+      principalPreview.textContent = '';
+      return;
+    }
+    const n = parseInt(digits, 10);
+    const man = Math.round(n / 10000);
+    principalPreview.textContent = man > 0 ? `= 約${man.toLocaleString('ja-JP')}万円` : '';
+  }
+  principalInput.addEventListener('input', () => {
+    const digits = digitsOnly(principalInput.value);
+    principalInput.value = formatDigitsWithCommas(digits);
+    updatePrincipalPreview();
+    recalc();
+  });
+
+  clearAllBtn.addEventListener('click', () => {
+    if (!confirm('入力した内容をすべて消して、最初の状態に戻します。よろしいですか?')) return;
+
+    [principalInput, rateInput, yearsInput, monthsInput, ageInput].forEach((el) => { el.value = ''; });
+    updatePrincipalPreview();
+
+    method = 'annuity';
+    methodBtns.forEach((b) => b.classList.toggle('active', b.dataset.method === 'annuity'));
+
+    extraType = 'shorten';
+    extraTypeBtns.forEach((b) => b.classList.toggle('active', b.dataset.extratype === 'shorten'));
+
+    Object.keys(extraByYear).forEach((y) => delete extraByYear[y]);
+
+    recalc();
+    principalInput.focus();
+  });
+
+  // 表の「繰り上げ」欄: 入力中はカンマ整形だけ行い、確定(change)で再計算する。
   // input中に毎回作り直すと、入力中のマスからフォーカスが外れてしまうため。
+  scheduleTable.addEventListener('input', (e) => {
+    const target = e.target;
+    if (!target.classList.contains('extra-year-input')) return;
+    const digits = digitsOnly(target.value);
+    target.value = formatDigitsWithCommas(digits);
+  });
+
   scheduleTable.addEventListener('change', (e) => {
     const target = e.target;
     if (!target.classList.contains('extra-year-input')) return;
     const year = parseInt(target.dataset.year, 10);
-    const val = parseFloat(target.value);
+    const val = parseFloat(digitsOnly(target.value));
     if (val > 0) {
       extraByYear[year] = val;
     } else {
@@ -165,11 +217,6 @@
     return Math.round(n).toLocaleString('ja-JP') + '円';
   }
 
-  // 予定表用: 万円単位に丸めて短く表示(小数点以下は四捨五入)。セル単体でも単位が分かるよう「万」を添える
-  function manEn(n) {
-    return Math.round(n / 10000).toLocaleString('ja-JP') + '万';
-  }
-
   function ageAtMonth(currentAge, months) {
     return currentAge + Math.floor(months / 12);
   }
@@ -183,19 +230,19 @@
   }
 
   function readInputs() {
-    const principalMan = parseFloat(principalInput.value);
+    const principalYen = parseFloat(digitsOnly(principalInput.value));
     const rate = parseFloat(rateInput.value);
     const years = parseInt(yearsInput.value, 10) || 0;
     const extraMonths = parseInt(monthsInput.value, 10) || 0;
     const totalMonths = years * 12 + extraMonths;
 
-    if (!(principalMan > 0) || isNaN(rate) || rate < 0 || totalMonths <= 0) return null;
+    if (!(principalYen > 0) || isNaN(rate) || rate < 0 || totalMonths <= 0) return null;
 
     const ageVal = parseInt(ageInput.value, 10);
     const currentAge = ageVal >= 0 ? ageVal : null;
 
     return {
-      principalYen: principalMan * 10000,
+      principalYen,
       rate,
       totalMonths,
       currentAge,
@@ -239,7 +286,7 @@
       .sort((a, b) => a - b)
       .map((y) => ({
         month: Math.min(y * 12, inputs.totalMonths - 1) || y * 12,
-        amount: extraByYear[y] * 10000,
+        amount: extraByYear[y],
         type: extraType,
       }))
       .filter((e) => e.month >= 1 && e.month < inputs.totalMonths);
@@ -296,6 +343,7 @@
       years.push({
         year: yearNum,
         age: currentAge !== null ? currentAge + yearNum : null,
+        monthlyPayment: chunk[0].payment,
         principalPaid,
         interestPaid,
         extraPaid,
@@ -304,12 +352,12 @@
     }
 
     const ageHeader = currentAge !== null ? '<th>年齢</th>' : '';
-    let html = `<thead><tr><th>年</th>${ageHeader}<th>元金</th><th>利息</th><th>繰上</th><th>残高</th></tr></thead><tbody>`;
+    let html = `<thead><tr><th>年</th>${ageHeader}<th>月々の返済額</th><th>元金</th><th>利息</th><th>繰上(円)</th><th>残高</th></tr></thead><tbody>`;
     years.forEach((y) => {
       const ageCell = currentAge !== null ? `<td>${y.age}歳</td>` : '';
-      const inputVal = extraByYear[y.year] ? extraByYear[y.year] : '';
-      const extraCell = `<td class="extra-cell"><input type="number" class="extra-year-input" data-year="${y.year}" value="${inputVal}" min="0" step="1" placeholder="0" inputmode="decimal"></td>`;
-      html += `<tr><td>${y.year}</td>${ageCell}<td>${manEn(y.principalPaid)}</td><td>${manEn(y.interestPaid)}</td>${extraCell}<td>${manEn(y.balance)}</td></tr>`;
+      const inputVal = extraByYear[y.year] ? extraByYear[y.year].toLocaleString('ja-JP') : '';
+      const extraCell = `<td class="extra-cell"><input type="text" class="extra-year-input" data-year="${y.year}" value="${inputVal}" placeholder="0" inputmode="numeric"></td>`;
+      html += `<tr><td>${y.year}</td>${ageCell}<td>${yen(y.monthlyPayment)}</td><td>${yen(y.principalPaid)}</td><td>${yen(y.interestPaid)}</td>${extraCell}<td>${yen(y.balance)}</td></tr>`;
     });
     html += '</tbody>';
     scheduleTable.innerHTML = html;
