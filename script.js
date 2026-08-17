@@ -165,9 +165,9 @@
     return Math.round(n).toLocaleString('ja-JP') + '円';
   }
 
-  // 予定表用: 万円単位に丸めて短く表示(小数点以下は四捨五入)
+  // 予定表用: 万円単位に丸めて短く表示(小数点以下は四捨五入)。セル単体でも単位が分かるよう「万」を添える
   function manEn(n) {
-    return Math.round(n / 10000).toLocaleString('ja-JP');
+    return Math.round(n / 10000).toLocaleString('ja-JP') + '万';
   }
 
   function ageAtMonth(currentAge, months) {
@@ -304,7 +304,7 @@
     }
 
     const ageHeader = currentAge !== null ? '<th>年齢</th>' : '';
-    let html = `<thead><tr><th>年</th>${ageHeader}<th>元金(万)</th><th>利息(万)</th><th>繰上(万)</th><th>残高(万)</th></tr></thead><tbody>`;
+    let html = `<thead><tr><th>年</th>${ageHeader}<th>元金</th><th>利息</th><th>繰上</th><th>残高</th></tr></thead><tbody>`;
     years.forEach((y) => {
       const ageCell = currentAge !== null ? `<td>${y.age}歳</td>` : '';
       const inputVal = extraByYear[y.year] ? extraByYear[y.year] : '';
