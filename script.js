@@ -20,6 +20,7 @@
   const resetExtraBtn = $('resetExtraBtn');
   const clearAllBtn = $('clearAllBtn');
   const principalPreview = $('principalPreview');
+  const extraPreview = $('extraPreview');
 
   let method = 'annuity';
   let extraType = 'shorten';
@@ -109,30 +110,72 @@
     principalInput.focus();
   });
 
-  // 表の「繰り上げ」欄: 入力中はカンマ整形だけ行い、確定(change)で再計算する。
-  // input中に毎回作り直すと、入力中のマスからフォーカスが外れてしまうため。
-  scheduleTable.addEventListener('input', (e) => {
-    const target = e.target;
-    if (!target.classList.contains('extra-year-input')) return;
+  // 表の「繰り上げ」欄: カンマ整形は入力ごとに行い、計算は少し待ってから(デバウンス)自動で行う。
+  // 他の欄をタップしなくても反映されるようにし、かつ入力中に毎回表を作り直してフォーカスが
+  // 外れてしまわないよう、再描画後に同じ年の入力欄へフォーカスを戻す。
+  let extraDebounceTimer = null;
+
+  function applyExtraInput(target) {
     const digits = digitsOnly(target.value);
     target.value = formatDigitsWithCommas(digits);
-  });
-
-  scheduleTable.addEventListener('change', (e) => {
-    const target = e.target;
-    if (!target.classList.contains('extra-year-input')) return;
     const year = parseInt(target.dataset.year, 10);
-    const val = parseFloat(digitsOnly(target.value));
+    const val = parseFloat(digits);
     if (val > 0) {
       extraByYear[year] = val;
     } else {
       delete extraByYear[year];
     }
-    recalc();
+    updateExtraPreview(year, val);
+    return year;
+  }
+
+  function updateExtraPreview(year, val) {
+    if (!(val > 0)) {
+      extraPreview.textContent = '';
+      return;
+    }
+    const man = Math.round(val / 10000);
+    extraPreview.textContent = man > 0
+      ? `= ${year}年目に 約${man.toLocaleString('ja-JP')}万円`
+      : `= ${year}年目に ${Math.round(val).toLocaleString('ja-JP')}円`;
+  }
+
+  scheduleTable.addEventListener('input', (e) => {
+    const target = e.target;
+    if (!target.classList.contains('extra-year-input')) return;
+    const year = applyExtraInput(target);
+    const caretAtEnd = target.value.length;
+
+    clearTimeout(extraDebounceTimer);
+    extraDebounceTimer = setTimeout(() => {
+      recalc(year, caretAtEnd);
+    }, 400);
+  });
+
+  scheduleTable.addEventListener('focusin', (e) => {
+    const target = e.target;
+    if (!target.classList.contains('extra-year-input')) return;
+    const year = parseInt(target.dataset.year, 10);
+    updateExtraPreview(year, extraByYear[year]);
+  });
+
+  scheduleTable.addEventListener('focusout', (e) => {
+    const target = e.target;
+    if (!target.classList.contains('extra-year-input')) return;
+    extraPreview.textContent = '';
+  });
+
+  scheduleTable.addEventListener('change', (e) => {
+    const target = e.target;
+    if (!target.classList.contains('extra-year-input')) return;
+    clearTimeout(extraDebounceTimer);
+    const year = applyExtraInput(target);
+    recalc(year);
   });
 
   resetExtraBtn.addEventListener('click', () => {
     Object.keys(extraByYear).forEach((y) => delete extraByYear[y]);
+    extraPreview.textContent = '';
     recalc();
   });
 
@@ -254,7 +297,7 @@
     };
   }
 
-  function recalc() {
+  function recalc(focusYear, focusCaret) {
     const inputs = readInputs();
     if (!inputs) {
       resultCard.classList.add('hidden');
@@ -326,14 +369,14 @@
       extraResultBody.innerHTML = '';
     }
 
-    renderYearlyTable(activeSchedule, inputs.currentAge, maxYear);
+    renderYearlyTable(activeSchedule, inputs.currentAge, maxYear, focusYear, focusCaret);
   }
 
   function row(label, value, cls) {
     return `<div class="result-row"><span class="result-label">${label}</span><span class="result-value ${cls || ''}">${value}</span></div>`;
   }
 
-  function renderYearlyTable(schedule, currentAge, maxYear) {
+  function renderYearlyTable(schedule, currentAge, maxYear, focusYear, focusCaret) {
     if (!schedule.length) {
       scheduleTable.innerHTML = '';
       return;
@@ -366,6 +409,16 @@
     });
     html += '</tbody>';
     scheduleTable.innerHTML = html;
+
+    // 入力中に再計算しても、同じ年の入力欄にフォーカスを戻して打ち続けられるようにする
+    if (focusYear) {
+      const el = scheduleTable.querySelector(`.extra-year-input[data-year="${focusYear}"]`);
+      if (el) {
+        el.focus();
+        const pos = focusCaret != null ? focusCaret : el.value.length;
+        el.setSelectionRange(pos, pos);
+      }
+    }
 
     // 完済が早まって表から消えた年の入力値は、意味がなくなるので取り除く
     Object.keys(extraByYear).forEach((y) => {

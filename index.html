@@ -8,7 +8,7 @@
 <link rel="icon" href="icon-180.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#10264d">
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
 
@@ -72,7 +72,7 @@
 
   <section class="card">
     <h2>3. 年別の返済予定表・繰り上げ返済</h2>
-    <p class="hint">表の「繰り上げ」欄に金額(円)を入れて他の欄をタップすると、その年末に繰り上げ返済したものとして自動で再計算されます。空欄の年は繰り上げ返済なしという意味です。表の金額はすべて円単位です。</p>
+    <p class="hint">表の「繰り上げ」欄に金額(円)を入れると、その年末に繰り上げ返済したものとして自動で再計算されます。空欄の年は繰り上げ返済なしという意味です。表の金額はすべて円単位です。</p>
     <p class="hint">スマホで見る場合、縦画面だと表が全部は収まらないことがあります。横画面(端末を横向き)にすると、表全体が見やすくなります。</p>
 
     <div class="field">
@@ -89,6 +89,8 @@
     <div class="extra-toolbar">
       <button type="button" id="resetExtraBtn" class="reset-btn">繰り上げ返済の入力をリセット</button>
     </div>
+
+    <p id="extraPreview" class="amount-preview"></p>
 
     <div class="table-wrap">
       <table id="scheduleTable"></table>
@@ -135,6 +137,6 @@
   </section>
 </div>
 
-<script src="script.js?v=15"></script>
+<script src="script.js?v=18"></script>
 </body>
 </html>
