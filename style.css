@@ -276,12 +276,12 @@ details[open] summary::before { content: "▾ "; }
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
-  min-width: 560px;
+  font-size: 10.5px;
+  min-width: 460px;
 }
 th, td {
   border: 1px solid var(--border-color);
-  padding: 5px 6px;
+  padding: 4px 3px;
   text-align: right;
   white-space: nowrap;
 }
@@ -294,9 +294,9 @@ th {
 
 td.extra-cell { padding: 2px; background: var(--accent-soft-bg); }
 .extra-year-input {
-  width: 84px;
-  padding: 4px 4px;
-  font-size: 12px;
+  width: 66px;
+  padding: 3px 3px;
+  font-size: 10.5px;
   text-align: right;
   border: 1px solid var(--border-input);
   background: var(--bg-input);

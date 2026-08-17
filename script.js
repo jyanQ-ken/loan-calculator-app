@@ -217,6 +217,11 @@
     return Math.round(n).toLocaleString('ja-JP') + '円';
   }
 
+  // 予定表は横幅が限られるため、「円」を付けず数字だけにして詰める(単位は表の上の説明で案内)
+  function yenTable(n) {
+    return Math.round(n).toLocaleString('ja-JP');
+  }
+
   function ageAtMonth(currentAge, months) {
     return currentAge + Math.floor(months / 12);
   }
@@ -352,12 +357,12 @@
     }
 
     const ageHeader = currentAge !== null ? '<th>年齢</th>' : '';
-    let html = `<thead><tr><th>年</th>${ageHeader}<th>月々の返済額</th><th>元金</th><th>利息</th><th>繰上(円)</th><th>残高</th></tr></thead><tbody>`;
+    let html = `<thead><tr><th>年</th>${ageHeader}<th>月々</th><th>元金</th><th>利息</th><th>繰上</th><th>残高</th></tr></thead><tbody>`;
     years.forEach((y) => {
       const ageCell = currentAge !== null ? `<td>${y.age}歳</td>` : '';
       const inputVal = extraByYear[y.year] ? extraByYear[y.year].toLocaleString('ja-JP') : '';
       const extraCell = `<td class="extra-cell"><input type="text" class="extra-year-input" data-year="${y.year}" value="${inputVal}" placeholder="0" inputmode="numeric"></td>`;
-      html += `<tr><td>${y.year}</td>${ageCell}<td>${yen(y.monthlyPayment)}</td><td>${yen(y.principalPaid)}</td><td>${yen(y.interestPaid)}</td>${extraCell}<td>${yen(y.balance)}</td></tr>`;
+      html += `<tr><td>${y.year}</td>${ageCell}<td>${yenTable(y.monthlyPayment)}</td><td>${yenTable(y.principalPaid)}</td><td>${yenTable(y.interestPaid)}</td>${extraCell}<td>${yenTable(y.balance)}</td></tr>`;
     });
     html += '</tbody>';
     scheduleTable.innerHTML = html;
