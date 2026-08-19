@@ -277,7 +277,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   font-size: 10.5px;
-  min-width: 460px;
+  min-width: 520px;
 }
 th, td {
   border: 1px solid var(--border-color);
@@ -292,9 +292,20 @@ th {
   font-weight: 600;
 }
 
+/* 横スクロールしても「年」の列だけは常に見えるよう固定する */
+th:first-child, td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bg-card);
+  box-shadow: 1px 0 0 var(--border-color);
+}
+th:first-child { background: var(--bg-input); z-index: 2; }
+
 td.extra-cell { padding: 2px; background: var(--accent-soft-bg); }
-.extra-year-input {
-  width: 66px;
+.extra-year-input,
+.rate-year-input {
+  width: 58px;
   padding: 3px 3px;
   font-size: 10.5px;
   text-align: right;
@@ -302,7 +313,9 @@ td.extra-cell { padding: 2px; background: var(--accent-soft-bg); }
   background: var(--bg-input);
   color: var(--text-main);
 }
-.extra-year-input:focus { outline: 1px solid var(--accent); }
+.rate-year-input { width: 46px; }
+.extra-year-input:focus,
+.rate-year-input:focus { outline: 1px solid var(--accent); }
 
 .help-content { margin-top: 12px; }
 .help-content h3 {
